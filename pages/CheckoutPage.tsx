@@ -1,7 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { CartItem } from '../types';
-import { ChevronLeft, Lock, CreditCard, CheckCircle2, Loader2 } from 'lucide-react';
+import { ChevronLeft, Lock, CreditCard, CheckCircle2, Loader2, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CheckoutPageProps {
@@ -13,51 +13,52 @@ interface CheckoutPageProps {
 export const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, total, onSuccess }) => {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isProcessing, setIsProcessing] = useState(false);
-  const shippingCost = total > 50 ? 0 : 5.95;
+  const shippingCost = total > 60 ? 0 : 8.00;
   const grandTotal = total + shippingCost;
 
   const handlePayment = () => {
     setIsProcessing(true);
-    // Simulate payment gateway delay
     setTimeout(() => {
       setIsProcessing(false);
       setStep(3);
-    }, 2500);
+    }, 2800);
   };
 
   if (step === 3) {
     return (
       <motion.div 
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="container mx-auto px-6 py-24 text-center max-w-lg"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="container mx-auto px-6 py-32 text-center max-w-lg"
       >
-        <div className="mb-8 inline-flex items-center justify-center w-24 h-24 bg-green-50 text-green-500 rounded-full">
-          <CheckCircle2 className="w-12 h-12" />
+        <div className="mb-10 inline-flex items-center justify-center w-20 h-20 bg-neutral-900 text-white rounded-full">
+          <CheckCircle2 className="w-10 h-10" />
         </div>
-        <h1 className="text-4xl font-serif font-bold mb-4">Payment Confirmed</h1>
-        <p className="text-neutral-500 mb-12">Thank you for choosing MayGloss. Your order #MG-8829-10 is being prepared with care in our NYC studio.</p>
+        <h1 className="text-5xl font-serif font-bold mb-6 italic">Confirmed.</h1>
+        <p className="text-neutral-500 mb-12 uppercase tracking-[0.2em] text-xs leading-loose">
+          Your order #MG-992-01 is being handcrafted in our New York studio. A confirmation email is on its way.
+        </p>
         <button 
           onClick={onSuccess}
-          className="bg-neutral-900 text-white px-12 py-5 font-bold uppercase tracking-[0.2em] hover:bg-neutral-800 transition-all"
+          className="w-full bg-neutral-900 text-white px-12 py-6 font-bold uppercase tracking-[0.3em] text-[10px] hover:bg-neutral-800 transition-all"
         >
-          Return Home
+          Return to Atelier
         </button>
       </motion.div>
     );
   }
 
   return (
-    <div className="container mx-auto px-6 py-12 max-w-7xl">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
-        {/* Left: Form */}
-        <div>
-          <div className="flex items-center justify-between mb-12">
-            <h1 className="text-4xl font-serif font-bold tracking-tight">Checkout</h1>
-            <div className="flex items-center space-x-4">
-              <span className={`w-2 h-2 rounded-full ${step >= 1 ? 'bg-neutral-900' : 'bg-neutral-200'}`} />
-              <div className="h-px w-6 bg-neutral-200" />
-              <span className={`w-2 h-2 rounded-full ${step >= 2 ? 'bg-neutral-900' : 'bg-neutral-200'}`} />
+    <div className="container mx-auto px-6 py-20 max-w-6xl">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-24 items-start">
+        {/* Main Flow */}
+        <div className="lg:col-span-7">
+          <div className="mb-16">
+            <h1 className="text-4xl font-serif font-bold mb-4 tracking-tight">Checkout</h1>
+            <div className="flex items-center space-x-2 text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-300">
+              <span className={step >= 1 ? 'text-neutral-900' : ''}>Shipping</span>
+              <span className="h-[1px] w-8 bg-neutral-100 mx-2" />
+              <span className={step >= 2 ? 'text-neutral-900' : ''}>Payment</span>
             </div>
           </div>
 
@@ -65,43 +66,35 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, total, onSucce
             {step === 1 ? (
               <motion.div 
                 key="step1"
-                initial={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                className="space-y-10"
+                exit={{ opacity: 0, x: 10 }}
+                className="space-y-12"
               >
-                <div className="space-y-6">
-                  <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-400">01. Shipping Details</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Email Address</label>
-                      <input type="email" placeholder="email@example.com" className="w-full border-b border-neutral-200 py-3 focus:border-neutral-900 outline-none transition-all placeholder:text-neutral-200 bg-transparent" />
+                <div className="grid grid-cols-1 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-400">Email Address</label>
+                    <input type="email" placeholder="client@maygloss.com" className="w-full bg-neutral-50 border-none p-5 text-sm focus:ring-1 focus:ring-neutral-200 outline-none transition-all" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-400">First Name</label>
+                      <input type="text" className="w-full bg-neutral-50 border-none p-5 text-sm" />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-400">Last Name</label>
+                      <input type="text" className="w-full bg-neutral-50 border-none p-5 text-sm" />
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">First Name</label>
-                      <input type="text" placeholder="Jane" className="w-full border-b border-neutral-200 py-3 outline-none" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Last Name</label>
-                      <input type="text" placeholder="Doe" className="w-full border-b border-neutral-200 py-3 outline-none" />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Address</label>
-                    <input type="text" placeholder="123 Glossy Road" className="w-full border-b border-neutral-200 py-3 outline-none" />
-                  </div>
-                  <div className="grid grid-cols-3 gap-6">
-                    <input type="text" placeholder="City" className="border-b border-neutral-200 py-3 outline-none" />
-                    <input type="text" placeholder="ZIP" className="border-b border-neutral-200 py-3 outline-none" />
-                    <input type="text" placeholder="State" className="border-b border-neutral-200 py-3 outline-none" />
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-400">Mailing Address</label>
+                    <input type="text" className="w-full bg-neutral-50 border-none p-5 text-sm" />
                   </div>
                 </div>
 
                 <button 
                   onClick={() => setStep(2)}
-                  className="w-full bg-neutral-900 text-white py-6 font-bold uppercase tracking-[0.2em] hover:bg-neutral-800 transition-all text-xs"
+                  className="w-full bg-neutral-900 text-white py-7 font-bold uppercase tracking-[0.4em] text-[10px] hover:bg-neutral-800 transition-all"
                 >
                   Continue to Payment
                 </button>
@@ -109,69 +102,65 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, total, onSucce
             ) : (
               <motion.div 
                 key="step2"
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="space-y-10"
+                exit={{ opacity: 0, x: -10 }}
+                className="space-y-12"
               >
                 <button 
                   onClick={() => setStep(1)}
-                  className="flex items-center text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-neutral-900 transition-colors"
+                  className="flex items-center text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-400 hover:text-neutral-900"
                 >
-                  <ChevronLeft className="w-3 h-3 mr-1" />
-                  Back to Shipping
+                  <ChevronLeft className="w-3 h-3 mr-2" />
+                  Shipping details
                 </button>
 
-                <div className="space-y-8">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-400">02. Secure Payment</h3>
-                    <div className="flex space-x-3 opacity-30">
-                      <CreditCard className="w-4 h-4" />
-                      <Lock className="w-4 h-4" />
+                <div className="p-10 bg-neutral-50/50 border border-neutral-100 rounded-3xl space-y-8">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-neutral-900">Secure Payment</h3>
+                    <div className="flex space-x-2">
+                      <div className="w-8 h-5 bg-neutral-200 rounded-sm opacity-50" />
+                      <div className="w-8 h-5 bg-neutral-200 rounded-sm opacity-50" />
                     </div>
                   </div>
-                  
-                  <div className="p-8 border border-neutral-100 rounded-xl bg-neutral-50/50 space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Card Number</label>
-                      <input 
-                        type="text" 
-                        placeholder="0000 0000 0000 0000" 
-                        className="w-full bg-transparent border-b border-neutral-200 py-3 outline-none text-lg tracking-[0.2em]" 
-                      />
+
+                  <div className="space-y-6">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-400">Card Number</label>
+                      <div className="relative">
+                        <input type="text" placeholder="0000 0000 0000 0000" className="w-full bg-white border-none p-5 text-sm tracking-[0.2em]" />
+                        <CreditCard className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-300" />
+                      </div>
                     </div>
                     <div className="grid grid-cols-2 gap-8">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Expiry</label>
-                        <input type="text" placeholder="MM/YY" className="w-full bg-transparent border-b border-neutral-200 py-3 outline-none" />
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-400">Expiration</label>
+                        <input type="text" placeholder="MM / YY" className="w-full bg-white border-none p-5 text-sm" />
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">CVC</label>
-                        <input type="text" placeholder="123" className="w-full bg-transparent border-b border-neutral-200 py-3 outline-none" />
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-400">CVC</label>
+                        <input type="text" placeholder="123" className="w-full bg-white border-none p-5 text-sm" />
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-6 bg-neutral-50 rounded-lg flex items-start space-x-4">
-                  <Lock className="w-4 h-4 text-neutral-400 mt-0.5" />
-                  <p className="text-[10px] text-neutral-400 leading-relaxed uppercase tracking-wider">
-                    Encrypted with 256-bit SSL technology. Your payment details are never stored on our servers.
+                <div className="flex items-center space-x-4 p-6 border border-neutral-100 rounded-2xl">
+                  <ShieldCheck className="w-5 h-5 text-neutral-900" />
+                  <p className="text-[9px] uppercase tracking-widest text-neutral-400 font-bold">
+                    Authenticated via Secure Atomics™ — Your data is never cached or stored.
                   </p>
                 </div>
 
                 <button 
                   onClick={handlePayment}
                   disabled={isProcessing}
-                  className="w-full bg-neutral-900 text-white py-6 font-bold uppercase tracking-[0.2em] hover:bg-neutral-800 transition-all flex items-center justify-center disabled:opacity-50 text-xs"
+                  className="w-full bg-neutral-900 text-white py-7 font-bold uppercase tracking-[0.4em] text-[10px] hover:bg-neutral-800 transition-all flex items-center justify-center disabled:opacity-50"
                 >
                   {isProcessing ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Processing...
-                    </>
+                    <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
-                    `Complete Purchase — $${grandTotal.toFixed(2)}`
+                    `Complete Transaction — $${grandTotal.toFixed(2)}`
                   )}
                 </button>
               </motion.div>
@@ -179,23 +168,20 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, total, onSucce
           </AnimatePresence>
         </div>
 
-        {/* Right: Summary */}
-        <div className="lg:sticky lg:top-32 h-fit">
-          <div className="bg-neutral-50 p-10 border border-neutral-100 rounded-2xl">
-            <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] mb-10 text-neutral-400">Order Summary</h2>
-            <div className="space-y-8 mb-10 border-b border-neutral-200 pb-10">
+        {/* Sidebar Summary */}
+        <div className="lg:col-span-5 lg:sticky lg:top-32">
+          <div className="bg-neutral-50 rounded-[40px] p-12 border border-neutral-100">
+            <h2 className="text-[10px] font-bold uppercase tracking-[0.4em] mb-12 text-neutral-400">Bag Summary</h2>
+            <div className="space-y-10 mb-12 border-b border-neutral-100 pb-12">
               {cart.map((item) => (
-                <div key={item.id} className="flex justify-between items-center">
+                <div key={item.id} className="flex justify-between items-center group">
                   <div className="flex items-center space-x-6">
-                    <div className="relative w-16 h-20 bg-neutral-200 overflow-hidden rounded-md">
-                      <img src={item.image} className="w-full h-full object-cover" />
-                      <span className="absolute -top-1 -right-1 bg-neutral-900 text-white text-[9px] w-5 h-5 rounded-full flex items-center justify-center font-bold">
-                        {item.quantity}
-                      </span>
+                    <div className="w-16 h-20 bg-neutral-100 overflow-hidden rounded-xl">
+                      <img src={item.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-widest">{item.name}</p>
-                      <p className="text-[10px] text-neutral-400 italic mt-1">{item.shade}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em]">{item.name}</p>
+                      <p className="text-[9px] text-neutral-400 italic mt-1">{item.shade} (x{item.quantity})</p>
                     </div>
                   </div>
                   <span className="text-xs font-bold">${(item.price * item.quantity).toFixed(2)}</span>
@@ -203,18 +189,18 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, total, onSucce
               ))}
             </div>
 
-            <div className="space-y-5">
-              <div className="flex justify-between text-[11px] uppercase tracking-widest">
+            <div className="space-y-6">
+              <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest">
                 <span className="text-neutral-400">Subtotal</span>
-                <span className="font-bold">${total.toFixed(2)}</span>
+                <span>${total.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-[11px] uppercase tracking-widest">
-                <span className="text-neutral-400">Shipping</span>
-                <span className="font-bold">{shippingCost === 0 ? 'COMPLIMENTARY' : `$${shippingCost.toFixed(2)}`}</span>
+              <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest">
+                <span className="text-neutral-400">White Glove Delivery</span>
+                <span>{shippingCost === 0 ? 'Complimentary' : `$${shippingCost.toFixed(2)}`}</span>
               </div>
-              <div className="flex justify-between text-base border-t border-neutral-200 pt-6 mt-6">
-                <span className="font-serif font-bold italic">Total</span>
-                <span className="font-bold text-xl tracking-tight">${grandTotal.toFixed(2)}</span>
+              <div className="pt-8 mt-8 border-t border-neutral-200 flex justify-between items-center">
+                <span className="font-serif font-bold text-2xl italic tracking-tight">Total</span>
+                <span className="font-bold text-3xl tracking-tighter">${grandTotal.toFixed(2)}</span>
               </div>
             </div>
           </div>
