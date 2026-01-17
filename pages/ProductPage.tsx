@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Product } from '../types';
+import { Product } from '../types.ts';
 import { ShieldCheck, Truck, RefreshCw, ChevronRight, Share2, Heart } from 'lucide-react';
 
 interface ProductPageProps {
@@ -24,14 +23,14 @@ export const ProductPage: React.FC<ProductPageProps> = ({ product, onAddToCart }
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
         {/* Left: Gallery */}
         <div className="grid grid-cols-1 gap-6">
-          <div className="aspect-[4/5] overflow-hidden bg-neutral-100">
+          <div className="aspect-[4/5] overflow-hidden bg-neutral-100 rounded-sm">
             <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
           </div>
           <div className="grid grid-cols-2 gap-6">
-            <div className="aspect-square bg-neutral-100 overflow-hidden">
+            <div className="aspect-square bg-neutral-100 overflow-hidden rounded-sm">
               <img src={`https://picsum.photos/800/800?random=${product.id}`} className="w-full h-full object-cover opacity-80" />
             </div>
-            <div className="aspect-square bg-neutral-100 overflow-hidden">
+            <div className="aspect-square bg-neutral-100 overflow-hidden rounded-sm">
               <img src={`https://picsum.photos/801/801?random=${product.id}`} className="w-full h-full object-cover opacity-80" />
             </div>
           </div>

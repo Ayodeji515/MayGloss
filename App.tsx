@@ -1,23 +1,26 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
-import { Header } from './components/Header';
-import { Footer } from './components/Footer';
-import { HomePage } from './pages/HomePage';
-import { ShopPage } from './pages/ShopPage';
-import { ProductPage } from './pages/ProductPage';
-import { CheckoutPage } from './pages/CheckoutPage';
-import { CartDrawer } from './components/CartDrawer';
-import { NotificationSystem } from './components/NotificationSystem';
-import { AIAssistant } from './components/AIAssistant';
-import { Page, Product, CartItem, Notification } from './types';
-import { PRODUCTS } from './constants';
+import { Header } from './components/Header.tsx';
+import { Footer } from './components/Footer.tsx';
+import { HomePage } from './pages/HomePage.tsx';
+import { ShopPage } from './pages/ShopPage.tsx';
+import { ProductPage } from './pages/ProductPage.tsx';
+import { CheckoutPage } from './pages/CheckoutPage.tsx';
+import { CartDrawer } from './components/CartDrawer.tsx';
+import { NotificationSystem } from './components/NotificationSystem.tsx';
+import { AIAssistant } from './components/AIAssistant.tsx';
+import { Page, Product, CartItem, Notification } from './types.ts';
+import { PRODUCTS } from './constants.tsx';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>(Page.Home);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem('maygloss_cart');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('maygloss_cart');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
   });
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -31,7 +34,6 @@ const App: React.FC = () => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
-  // Listen for global notifications from nested components
   useEffect(() => {
     const handleGlobalNotif = (e: any) => {
       if (e.detail) {
@@ -46,7 +48,6 @@ const App: React.FC = () => {
     localStorage.setItem('maygloss_cart', JSON.stringify(cart));
   }, [cart]);
 
-  // Sync state with URL hash for basic routing
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '');
@@ -74,6 +75,7 @@ const App: React.FC = () => {
     } else {
       window.location.hash = page;
     }
+    window.scrollTo(0, 0);
   };
 
   const addToCart = (product: Product) => {
@@ -115,7 +117,7 @@ const App: React.FC = () => {
   , [selectedProductId]);
 
   return (
-    <div className="min-h-screen flex flex-col selection:bg-rose-100">
+    <div className="min-h-screen flex flex-col bg-mauve-50">
       <Header 
         cartCount={cart.reduce((acc, i) => acc + i.quantity, 0)} 
         onCartClick={() => setIsCartOpen(true)}

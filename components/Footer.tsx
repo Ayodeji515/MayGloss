@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
-import { Page } from '../types';
-import { STORE_INFO } from '../constants';
+import { Page } from '../types.ts';
+import { STORE_INFO } from '../constants.tsx';
 
 interface FooterProps {
   navigate: (page: Page) => void;
@@ -13,11 +12,6 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     if (email.trim()) {
-      // Notification is handled globally if we expose the state, 
-      // but for simplicity we can dispatch a custom event or just assume App.tsx would handle it.
-      // Here we'll rely on the parent component's notification system if we were passing it down,
-      // but since we aren't, we'll trigger a window event that App.tsx can listen to if needed, 
-      // or simply use a local alert for now as a placeholder for the notification.
       window.dispatchEvent(new CustomEvent('maygloss-notification', { 
         detail: { message: "Successfully subscribed! Check your inbox for 15% off.", type: 'success' } 
       }));

@@ -1,9 +1,8 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Send, Mic, MicOff, Sparkles, AlertTriangle } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
-import { AIMessage } from '../types';
-import { PRODUCTS } from '../constants';
+import { AIMessage } from '../types.ts';
+import { PRODUCTS } from '../constants.tsx';
 
 export const AIAssistant: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -58,7 +57,7 @@ export const AIAssistant: React.FC = () => {
         ${context}
         
         Answer user questions about lip gloss, beauty tips, and our catalog. Keep responses concise and luxurious. 
-        If a user asks about a specific product, emphasize its benefits.
+        If a user asks about a specific product, emphasize its benefits. Use an editorial, high-end voice.
         
         User: ${textToSend}`,
       });

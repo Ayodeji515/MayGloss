@@ -1,6 +1,5 @@
-
 import React, { useState, useMemo } from 'react';
-import { PRODUCTS } from '../constants';
+import { PRODUCTS } from '../constants.tsx';
 import { Filter, SlidersHorizontal } from 'lucide-react';
 
 interface ShopPageProps {
@@ -60,7 +59,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onProductSelect }) => {
             className="group cursor-pointer"
             onClick={() => onProductSelect(product.id)}
           >
-            <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100 mb-6">
+            <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100 mb-6 rounded-sm">
               <img 
                 src={product.image} 
                 alt={product.name} 
