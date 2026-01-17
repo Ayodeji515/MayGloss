@@ -1,0 +1,7 @@
+{
+  "name": "MayGloss - Premium Lip Gloss Collection",
+  "description": "An elegant, high-end e-commerce experience for MayGloss, a premium lip gloss brand featuring luxurious textures, shimmering finishes, and a seamless checkout process.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
