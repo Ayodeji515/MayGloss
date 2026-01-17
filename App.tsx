@@ -7,7 +7,9 @@ import { ShopPage } from './pages/ShopPage';
 import { ProductPage } from './pages/ProductPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { CartDrawer } from './components/CartDrawer';
-import { Page, Product, CartItem } from './types';
+import { NotificationSystem } from './components/NotificationSystem';
+import { AIAssistant } from './components/AIAssistant';
+import { Page, Product, CartItem, Notification } from './types';
 import { PRODUCTS } from './constants';
 
 const App: React.FC = () => {
@@ -18,6 +20,16 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : [];
   });
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  const addNotification = (message: string, type: 'success' | 'info' | 'error' = 'success') => {
+    const id = Math.random().toString(36).substr(2, 9);
+    setNotifications(prev => [...prev, { id, message, type }]);
+  };
+
+  const removeNotification = (id: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
 
   useEffect(() => {
     localStorage.setItem('maygloss_cart', JSON.stringify(cart));
@@ -63,10 +75,13 @@ const App: React.FC = () => {
       }
       return [...prev, { ...product, quantity: 1 }];
     });
+    addNotification(`${product.name} added to bag`);
     setIsCartOpen(true);
   };
 
   const removeFromCart = (id: string) => {
+    const item = cart.find(i => i.id === id);
+    if (item) addNotification(`Removed ${item.name} from bag`, 'info');
     setCart(prev => prev.filter(item => item.id !== id));
   };
 
@@ -114,6 +129,7 @@ const App: React.FC = () => {
             cart={cart} 
             total={cartTotal} 
             onSuccess={() => {
+              addNotification("Order placed successfully!", "success");
               setCart([]);
               navigate(Page.Home);
             }} 
@@ -135,6 +151,9 @@ const App: React.FC = () => {
           navigate(Page.Checkout);
         }}
       />
+
+      <NotificationSystem notifications={notifications} removeNotification={removeNotification} />
+      <AIAssistant />
     </div>
   );
 };

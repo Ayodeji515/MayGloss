@@ -34,3 +34,14 @@ export enum Page {
   Cart = 'cart',
   Checkout = 'checkout'
 }
+
+export interface Notification {
+  id: string;
+  message: string;
+  type: 'success' | 'info' | 'error';
+}
+
+export interface AIMessage {
+  role: 'user' | 'assistant';
+  text: string;
+}
