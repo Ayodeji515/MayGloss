@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Send, Mic, MicOff, Sparkles, Volume2 } from 'lucide-react';
+import { X, Send, Mic, MicOff, Sparkles, AlertTriangle } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import { AIMessage } from '../types';
 import { PRODUCTS } from '../constants';
@@ -16,13 +16,14 @@ export const AIAssistant: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
 
+  const apiKey = process.env.API_KEY;
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isTyping]);
 
-  // Handle voice recognition cleanup
   useEffect(() => {
     return () => {
       if (recognitionRef.current) {
@@ -35,13 +36,19 @@ export const AIAssistant: React.FC = () => {
     const textToSend = textOverride || input;
     if (!textToSend.trim()) return;
 
+    if (!apiKey) {
+      setMessages(prev => [...prev, { role: 'user', text: textToSend }, { role: 'assistant', text: "My neural sensors aren't active yet. Please configure the API_KEY in the environment settings to enable my AI brain." }]);
+      setInput('');
+      return;
+    }
+
     const userMessage: AIMessage = { role: 'user', text: textToSend };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsTyping(true);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey });
       const context = PRODUCTS.map(p => `${p.name}: ${p.description} ($${p.price}, shade: ${p.shade})`).join('\n');
       
       const response = await ai.models.generateContent({
@@ -84,10 +91,7 @@ export const AIAssistant: React.FC = () => {
     recognition.interimResults = true;
     recognition.lang = 'en-US';
 
-    recognition.onstart = () => {
-      setIsListening(true);
-    };
-
+    recognition.onstart = () => setIsListening(true);
     recognition.onresult = (event: any) => {
       let interimTranscript = '';
       for (let i = event.resultIndex; i < event.results.length; ++i) {
@@ -102,16 +106,8 @@ export const AIAssistant: React.FC = () => {
         }
       }
     };
-
-    recognition.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
-      setIsListening(false);
-      recognition.stop();
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-    };
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
 
     recognitionRef.current = recognition;
     recognition.start();
@@ -134,12 +130,12 @@ export const AIAssistant: React.FC = () => {
             </div>
             <div>
               <h2 className="text-sm font-bold uppercase tracking-widest">MayGloss Assistant</h2>
-              <div className="flex items-center space-x-1">
-                <span className={`w-1.5 h-1.5 rounded-full ${isListening ? 'bg-rose-500 animate-ping' : 'bg-green-500'}`}></span>
-                <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-tighter">
-                  {isListening ? 'Listening...' : 'Online'}
-                </span>
-              </div>
+              {!apiKey && (
+                <div className="flex items-center text-rose-500 space-x-1">
+                  <AlertTriangle className="w-3 h-3" />
+                  <span className="text-[9px] font-bold uppercase tracking-tighter">API Key Missing</span>
+                </div>
+              )}
             </div>
           </div>
           <button onClick={() => setIsOpen(false)} className="p-2 -mr-2 hover:bg-neutral-100 rounded-full transition-colors">
@@ -179,24 +175,18 @@ export const AIAssistant: React.FC = () => {
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
               <button 
                 onClick={toggleVoice}
-                title="Voice Input"
-                className={`p-2 rounded-full transition-all ${isListening ? 'bg-rose-500 text-white scale-110' : 'text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100'}`}
+                className={`p-2 rounded-full transition-all ${isListening ? 'bg-rose-500 text-white' : 'text-neutral-400'}`}
               >
                 {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
               </button>
               <button 
                 onClick={() => handleSend()}
-                disabled={!input.trim() || isListening}
-                className="bg-neutral-900 text-white p-2 rounded-full disabled:opacity-30 transition-opacity hover:bg-neutral-800 active:scale-95"
+                disabled={!input.trim()}
+                className="bg-neutral-900 text-white p-2 rounded-full disabled:opacity-30"
               >
                 <Send className="w-4 h-4" />
               </button>
             </div>
-          </div>
-          <div className="flex items-center justify-center space-x-4 mt-4">
-            <p className="text-[10px] text-neutral-400 uppercase tracking-widest italic">
-              Powered by Gemini Intelligence
-            </p>
           </div>
         </div>
       </div>
