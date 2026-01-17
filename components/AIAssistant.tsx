@@ -1,19 +1,9 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Mic, MicOff, Sparkles } from 'lucide-react';
+import { X, Send, Mic, MicOff, Sparkles, Volume2 } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import { AIMessage } from '../types';
 import { PRODUCTS } from '../constants';
-
-// Manual base64 helpers as per instructions
-function encode(bytes: Uint8Array) {
-  let binary = '';
-  const len = bytes.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary);
-}
 
 export const AIAssistant: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -30,7 +20,16 @@ export const AIAssistant: React.FC = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, isTyping]);
+
+  // Handle voice recognition cleanup
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
 
   const handleSend = async (textOverride?: string) => {
     const textToSend = textOverride || input;
@@ -51,7 +50,8 @@ export const AIAssistant: React.FC = () => {
         Use this product list for context:
         ${context}
         
-        Answer user questions about lip gloss, beauty tips, and our catalog. Keep responses concise and luxurious.
+        Answer user questions about lip gloss, beauty tips, and our catalog. Keep responses concise and luxurious. 
+        If a user asks about a specific product, emphasize its benefits.
         
         User: ${textToSend}`,
       });
@@ -80,17 +80,38 @@ export const AIAssistant: React.FC = () => {
     }
 
     const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    recognition.continuous = true;
+    recognition.interimResults = true;
     recognition.lang = 'en-US';
 
-    recognition.onstart = () => setIsListening(true);
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      handleSend(transcript);
+    recognition.onstart = () => {
+      setIsListening(true);
     };
-    recognition.onerror = () => setIsListening(false);
-    recognition.onend = () => setIsListening(false);
+
+    recognition.onresult = (event: any) => {
+      let interimTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          const finalTranscript = event.results[i][0].transcript;
+          recognition.stop();
+          setIsListening(false);
+          handleSend(finalTranscript);
+        } else {
+          interimTranscript += event.results[i][0].transcript;
+          setInput(interimTranscript);
+        }
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      setIsListening(false);
+      recognition.stop();
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
 
     recognitionRef.current = recognition;
     recognition.start();
@@ -114,8 +135,10 @@ export const AIAssistant: React.FC = () => {
             <div>
               <h2 className="text-sm font-bold uppercase tracking-widest">MayGloss Assistant</h2>
               <div className="flex items-center space-x-1">
-                <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-tighter">Online</span>
+                <span className={`w-1.5 h-1.5 rounded-full ${isListening ? 'bg-rose-500 animate-ping' : 'bg-green-500'}`}></span>
+                <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-tighter">
+                  {isListening ? 'Listening...' : 'Online'}
+                </span>
               </div>
             </div>
           </div>
@@ -143,35 +166,38 @@ export const AIAssistant: React.FC = () => {
           )}
         </div>
 
-        <div className="p-6 border-t border-neutral-100">
+        <div className="p-6 border-t border-neutral-100 bg-white">
           <div className="relative">
             <input 
               type="text" 
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Ask anything..."
-              className="w-full bg-neutral-50 border border-neutral-100 py-4 pl-6 pr-24 rounded-full text-sm outline-none focus:border-neutral-900 focus:bg-white transition-all"
+              placeholder={isListening ? "Listening..." : "Ask anything..."}
+              className={`w-full bg-neutral-50 border border-neutral-100 py-4 pl-6 pr-24 rounded-full text-sm outline-none transition-all ${isListening ? 'border-rose-300 bg-rose-50/30' : 'focus:border-neutral-900 focus:bg-white'}`}
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
               <button 
                 onClick={toggleVoice}
-                className={`p-2 rounded-full transition-colors ${isListening ? 'bg-rose-100 text-rose-500 animate-pulse' : 'text-neutral-400 hover:text-neutral-900'}`}
+                title="Voice Input"
+                className={`p-2 rounded-full transition-all ${isListening ? 'bg-rose-500 text-white scale-110' : 'text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100'}`}
               >
                 {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
               </button>
               <button 
                 onClick={() => handleSend()}
-                disabled={!input.trim()}
-                className="bg-neutral-900 text-white p-2 rounded-full disabled:opacity-30 transition-opacity"
+                disabled={!input.trim() || isListening}
+                className="bg-neutral-900 text-white p-2 rounded-full disabled:opacity-30 transition-opacity hover:bg-neutral-800 active:scale-95"
               >
                 <Send className="w-4 h-4" />
               </button>
             </div>
           </div>
-          <p className="text-[10px] text-neutral-400 mt-4 text-center uppercase tracking-widest italic">
-            Powered by Gemini Intelligence
-          </p>
+          <div className="flex items-center justify-center space-x-4 mt-4">
+            <p className="text-[10px] text-neutral-400 uppercase tracking-widest italic">
+              Powered by Gemini Intelligence
+            </p>
+          </div>
         </div>
       </div>
     </>

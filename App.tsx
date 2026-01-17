@@ -31,6 +31,17 @@ const App: React.FC = () => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
+  // Listen for global notifications from nested components
+  useEffect(() => {
+    const handleGlobalNotif = (e: any) => {
+      if (e.detail) {
+        addNotification(e.detail.message, e.detail.type);
+      }
+    };
+    window.addEventListener('maygloss-notification', handleGlobalNotif);
+    return () => window.removeEventListener('maygloss-notification', handleGlobalNotif);
+  }, []);
+
   useEffect(() => {
     localStorage.setItem('maygloss_cart', JSON.stringify(cart));
   }, [cart]);
