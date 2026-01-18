@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Header } from './components/Header.tsx';
 import { Footer } from './components/Footer.tsx';
@@ -7,6 +8,7 @@ import { ProductPage } from './pages/ProductPage.tsx';
 import { CheckoutPage } from './pages/CheckoutPage.tsx';
 import { CartDrawer } from './components/CartDrawer.tsx';
 import { NotificationSystem } from './components/NotificationSystem.tsx';
+// Fix: Import AIAssistant component
 import { AIAssistant } from './components/AIAssistant.tsx';
 import { Page, Product, CartItem, Notification } from './types.ts';
 import { PRODUCTS } from './constants.tsx';
@@ -165,8 +167,9 @@ const App: React.FC = () => {
         }}
       />
 
-      <NotificationSystem notifications={notifications} removeNotification={removeNotification} />
+      {/* Fix: Render AIAssistant component */}
       <AIAssistant />
+      <NotificationSystem notifications={notifications} removeNotification={removeNotification} />
     </div>
   );
 };

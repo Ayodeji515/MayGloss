@@ -41,6 +41,7 @@ export interface Notification {
   type: 'success' | 'info' | 'error';
 }
 
+// Fix: Added missing AIMessage interface
 export interface AIMessage {
   role: 'user' | 'assistant';
   text: string;

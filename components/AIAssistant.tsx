@@ -1,5 +1,7 @@
+
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Send, Mic, MicOff, Sparkles, AlertTriangle } from 'lucide-react';
+import { X, Send, Mic, MicOff, Sparkles } from 'lucide-react';
+// Fix: Ensure correct import of GoogleGenAI
 import { GoogleGenAI } from '@google/genai';
 import { AIMessage } from '../types.ts';
 import { PRODUCTS } from '../constants.tsx';
@@ -14,8 +16,6 @@ export const AIAssistant: React.FC = () => {
   const [isListening, setIsListening] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
-
-  const apiKey = process.env.API_KEY;
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -35,33 +35,31 @@ export const AIAssistant: React.FC = () => {
     const textToSend = textOverride || input;
     if (!textToSend.trim()) return;
 
-    if (!apiKey) {
-      setMessages(prev => [...prev, { role: 'user', text: textToSend }, { role: 'assistant', text: "My neural sensors aren't active yet. Please configure the API_KEY in the environment settings to enable my AI brain." }]);
-      setInput('');
-      return;
-    }
-
     const userMessage: AIMessage = { role: 'user', text: textToSend };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsTyping(true);
 
     try {
-      const ai = new GoogleGenAI({ apiKey });
+      // Fix: Initialize GoogleGenAI with process.env.API_KEY directly as per guidelines
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const context = PRODUCTS.map(p => `${p.name}: ${p.description} ($${p.price}, shade: ${p.shade})`).join('\n');
       
+      // Fix: Use systemInstruction and the correct gemini-3-flash-preview model
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: `You are the MayGloss Beauty Assistant. You are elegant, helpful, and an expert in our products.
-        Use this product list for context:
-        ${context}
-        
-        Answer user questions about lip gloss, beauty tips, and our catalog. Keep responses concise and luxurious. 
-        If a user asks about a specific product, emphasize its benefits. Use an editorial, high-end voice.
-        
-        User: ${textToSend}`,
+        contents: textToSend,
+        config: {
+          systemInstruction: `You are the MayGloss Beauty Assistant. You are elegant, helpful, and an expert in our products.
+          Use this product list for context:
+          ${context}
+          
+          Answer user questions about lip gloss, beauty tips, and our catalog. Keep responses concise and luxurious. 
+          If a user asks about a specific product, emphasize its benefits. Use an editorial, high-end voice.`
+        }
       });
 
+      // Fix: Use response.text property directly
       const assistantMessage: AIMessage = { role: 'assistant', text: response.text || "I'm sorry, I'm having trouble connecting right now." };
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
@@ -129,12 +127,6 @@ export const AIAssistant: React.FC = () => {
             </div>
             <div>
               <h2 className="text-sm font-bold uppercase tracking-widest">MayGloss Assistant</h2>
-              {!apiKey && (
-                <div className="flex items-center text-rose-500 space-x-1">
-                  <AlertTriangle className="w-3 h-3" />
-                  <span className="text-[9px] font-bold uppercase tracking-tighter">API Key Missing</span>
-                </div>
-              )}
             </div>
           </div>
           <button onClick={() => setIsOpen(false)} className="p-2 -mr-2 hover:bg-neutral-100 rounded-full transition-colors">
